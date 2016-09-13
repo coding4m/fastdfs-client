@@ -386,11 +386,7 @@ public class FastdfsClient implements Closeable {
      * @return
      */
     public CompletableFuture<Void> append(FileId fileId, byte[] bytes) {
-        Objects.requireNonNull(fileId, "fileId must not be null.");
-        Objects.requireNonNull(bytes, "bytes must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.append(server, fileId, bytes));
+        return append(fileId, bytes, bytes.length);
     }
 
     /**
@@ -428,11 +424,7 @@ public class FastdfsClient implements Closeable {
      * @return
      */
     public CompletableFuture<Void> modify(FileId fileId, byte[] bytes, int offset) {
-        Objects.requireNonNull(fileId, "fileId must not be null.");
-        Objects.requireNonNull(bytes, "bytes must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.modify(server, fileId, bytes, offset));
+        return modify(fileId, bytes, bytes.length, offset);
     }
 
     /**
