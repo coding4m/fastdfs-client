@@ -14,7 +14,7 @@ import static fastdfs.client.FastdfsConstants.UTF_8;
  */
 public class FileId {
 
-    static final char SEPARATER = '/';
+    private static final char SEPARATER = '/';
 
     private final String group;
     private final String path;
