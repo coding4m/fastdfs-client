@@ -1,0 +1,46 @@
+/**
+ *
+ */
+package fastdfs.client;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.pool.AbstractChannelPoolMap;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+
+/**
+ * Fastdfs 连接池组
+ *
+ * @author liulongbiao
+ */
+final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, FastdfsPool> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FastdfsPoolGroup.class);
+
+    final EventLoopGroup loopGroup;
+    final FastdfsSettings settings;
+
+    FastdfsPoolGroup(EventLoopGroup loopGroup, FastdfsSettings settings) {
+        this.loopGroup = loopGroup;
+        this.settings = settings;
+    }
+
+    @Override
+    protected FastdfsPool newPool(InetSocketAddress addr) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("channel pool created : {}", addr);
+        }
+
+        Bootstrap bootstrap = new Bootstrap().channel(NioSocketChannel.class).group(loopGroup);
+        bootstrap.remoteAddress(addr);
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, settings.connectTimeout());
+        bootstrap.option(ChannelOption.TCP_NODELAY, true);
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+        return new FastdfsPool(bootstrap, settings.maxIdleSeconds(), settings.maxConnPerHost());
+    }
+}
