@@ -23,4 +23,5 @@ based on [Netty 4](http://netty.io) .
     CompletableFuture<FileInfo> promise = client.infoGet(fileId);
     
     // do something.
+    client.close();
 ```
