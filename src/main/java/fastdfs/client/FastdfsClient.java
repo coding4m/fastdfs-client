@@ -56,6 +56,47 @@ public class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param filename
+     * @param content
+     * @return
+     */
+    public CompletableFuture<FileId> upload(String filename, byte[] content) {
+        return upload(null, filename, content);
+    }
+
+    /**
+     * @param filename
+     * @param content
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<FileId> upload(String filename, byte[] content, FileMetadata metadata) {
+        return upload(null, filename, content, metadata);
+    }
+
+    /**
+     * @param group
+     * @param filename
+     * @param content
+     * @return
+     */
+    public CompletableFuture<FileId> upload(String group, String filename, byte[] content) {
+        return upload(group, content, filename, content.length);
+    }
+
+    /**
+     * @param group
+     * @param filename
+     * @param content
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<FileId> upload(String group, String filename, byte[] content, FileMetadata metadata) {
+        return upload(group, content, filename, content.length, metadata);
+    }
+
+
+    /**
      * @param file
      * @param metadata
      * @return
@@ -151,6 +192,15 @@ public class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param file
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(File file, FileMetadata metadata) {
+        return uploadAppender(null, file, metadata);
+    }
+
+    /**
      * @param group
      * @param file
      * @return
@@ -163,6 +213,49 @@ public class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param group
+     * @param file
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(String group, File file, FileMetadata metadata) {
+        return uploadAppender(group, file)
+                .thenApply(fileId -> {
+                    metadataSet(fileId, metadata);
+                    return fileId;
+                });
+    }
+
+    /**
+     * @param filename
+     * @param content
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(String filename, byte[] content) {
+        return uploadAppender(null, content, filename, content.length);
+    }
+
+    /**
+     * @param group
+     * @param filename
+     * @param content
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(String group, String filename, byte[] content) {
+        return uploadAppender(group, content, filename, content.length);
+    }
+
+    /**
+     * @param group
+     * @param filename
+     * @param content
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(String group, String filename, byte[] content, FileMetadata metadata) {
+        return uploadAppender(group, content, filename, content.length, metadata);
+    }
+
+    /**
      * @param content
      * @param filename
      * @param size
@@ -170,6 +263,18 @@ public class FastdfsClient implements Closeable {
      */
     public CompletableFuture<FileId> uploadAppender(Object content, String filename, long size) {
         return uploadAppender(null, content, filename, size);
+    }
+
+
+    /**
+     * @param content
+     * @param filename
+     * @param size
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(Object content, String filename, long size, FileMetadata metadata) {
+        return uploadAppender(null, content, filename, size, metadata);
     }
 
     /**
@@ -194,6 +299,22 @@ public class FastdfsClient implements Closeable {
         return trackerClient
                 .uploadStorageGet(group)
                 .thenCompose(server -> storageClient.uploadAppender(server, content, filename, size));
+    }
+
+    /**
+     * @param group
+     * @param content
+     * @param filename
+     * @param size
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<FileId> uploadAppender(String group, Object content, String filename, long size, FileMetadata metadata) {
+        return uploadAppender(group, content, filename, size)
+                .thenApply(fileId -> {
+                    metadataSet(fileId, metadata);
+                    return fileId;
+                });
     }
 
     /**
