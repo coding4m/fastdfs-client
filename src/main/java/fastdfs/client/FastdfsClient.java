@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author siuming
  */
-public class FastdfsClient implements Closeable {
+public final class FastdfsClient implements Closeable {
 
     private final FastdfsExecutor executor;
     private final TrackerClient trackerClient;
