@@ -16,6 +16,12 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class FastdfsClient implements Closeable {
 
+    public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
+    public static final int DEFAULT_MAX_THREADS = 0;
+    public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
+    public static final int DEFAULT_MAX_IDLE_SECONDS = 60;
+
+
     private final FastdfsExecutor executor;
     private final TrackerClient trackerClient;
     private final StorageClient storageClient;
@@ -530,10 +536,10 @@ public final class FastdfsClient implements Closeable {
     }
 
     public static class Builder {
-        int connectTimeout = 3000; // 连接超时时间(毫秒)
-        int maxThreads = 0; // 线程数量
-        int maxConnPerHost = 50; // 每个IP最大连接数
-        int maxIdleSeconds = -1; // 最大闲置时间(秒)
+        int connectTimeout = DEFAULT_CONNECT_TIMEOUT; // 连接超时时间(毫秒)
+        int maxThreads = DEFAULT_MAX_THREADS; // 线程数量
+        int maxConnPerHost = DEFAULT_MAX_CONN_PER_HOST; // 每个IP最大连接数
+        int maxIdleSeconds = DEFAULT_MAX_IDLE_SECONDS; // 最大闲置时间(秒)
 
         TrackerSelector selector = TrackerSelector.RANDOM;
         List<TrackerServer> trackers = new LinkedList<>();
