@@ -10,18 +10,42 @@ based on [Netty 4](http://netty.io) .
 ## Usage
 
 ```java
+    
+    // FastdfsClient is threadsafe and use connection pool.
     FastdfsClient  client = FastdfsClient.newBuilder()
-                                            .maxIdleSeconds(3000)
+                                            .connectTimeout(3000)
+                                            .readTimeout(100)
                                             .tracker("192.168.1.2", 22222)
                                             .build();
-                                          
-    CompletableFuture<FileId> path = client.upload(new File("/tmp/test.dmg"));
+    
+    // upload file
+    CompletableFuture<FileId> promise = client.upload(new File("/tmp/test.dmg"));
+    FileId fileId = promise.get();
     // do something.
     
-    FileId fileId = FileId.fromString("group1/M00/00/00/ZfvfZlbz6VuAPdosAARXBcPHPhU268.log");
-    //FileId fileId = FileId.fromBase64String("base64 string");
+    // download file
+    OutputStream out = ...
+    CompletableFuture<Void> promise = client.download(fileId, out);
+    // promise.whenComplete(...);
+    
+    // delete file
+    CompletableFuture<Void> promise = client.delete(fileId);
+    // promise.whenComplete(...);
+    
+    // get file info
     CompletableFuture<FileInfo> promise = client.infoGet(fileId);
-    
+    FileInfo fileInfo = promise.get();
     // do something.
+    
+    // set file metadata
+    FileMetadata metadata = FileMetadata.newBuilder().put("test", "test1").build();
+    CompletableFuture<Void> promise = client.metadataSet(fileId, metadata);
+    // do something.
+    
+    // get file metadata
+    CompletableFuture<FileMetadata> promise = client.metadataGet(fileId);
+    FileMetadata metadata = promise.get();
+    // do something.
+    
     client.close();
 ```
