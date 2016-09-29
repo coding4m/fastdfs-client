@@ -10,6 +10,8 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 
 final class FastdfsHandler extends ByteToMessageDecoder {
@@ -36,7 +38,7 @@ final class FastdfsHandler extends ByteToMessageDecoder {
 
         throw new FastdfsDataOverflowException(
                 String.format(
-                        "channel %s remain %s data bytes, but there is not operation await.",
+                        "fastdfs channel %s remain %s data bytes, but there is not operation await.",
                         ctx.channel(),
                         in.readableBytes()
                 )
@@ -45,8 +47,27 @@ final class FastdfsHandler extends ByteToMessageDecoder {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            throw new FastdfsTimeoutException("channel was idle for maxIdleSeconds.");
+
+        // read idle event.
+        if (evt == IdleStateEvent.FIRST_READER_IDLE_STATE_EVENT
+                || evt == IdleStateEvent.READER_IDLE_STATE_EVENT) {
+
+            if (null != operation) {
+                throw new FastdfsReadTimeoutException(
+                        String.format(
+                                "execute %s read timeout.",
+                                operation
+                        )
+                );
+            }
+
+            return;
+        }
+
+        // all idle event.
+        if (evt == IdleStateEvent.FIRST_ALL_IDLE_STATE_EVENT
+                || evt == IdleStateEvent.ALL_IDLE_STATE_EVENT) {
+            throw new FastdfsTimeoutException("fastdfs channel was idle timeout.");
         }
     }
 
@@ -65,17 +86,43 @@ final class FastdfsHandler extends ByteToMessageDecoder {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
+
+        Throwable error = translateException(cause);
         if (null != operation) {
-            operation.caught(cause);
+            operation.caught(error);
             return;
         }
 
         // idle timeout.
-        if (cause instanceof FastdfsTimeoutException) {
-            LOG.debug(cause.getMessage(), cause);
+        if (error instanceof FastdfsTimeoutException) {
+            LOG.debug(error.getMessage(), error);
             return;
         }
 
-        LOG.error(cause.getMessage(), cause);
+        LOG.error(error.getMessage(), error);
+    }
+
+    private Throwable translateException(Throwable cause) {
+        if (cause instanceof FastdfsException) {
+            return cause;
+        }
+
+        Throwable unwrap = cause;
+        for (; ; ) {
+
+            if (unwrap instanceof InvocationTargetException) {
+                unwrap = ((InvocationTargetException) unwrap).getTargetException();
+                continue;
+            }
+
+            if (unwrap instanceof UndeclaredThrowableException) {
+                unwrap = ((UndeclaredThrowableException) unwrap).getUndeclaredThrowable();
+                continue;
+            }
+
+            break;
+        }
+
+        return new FastdfsException("fastdfs operation error.", unwrap);
     }
 }

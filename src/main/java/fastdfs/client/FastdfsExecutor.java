@@ -11,6 +11,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.io.Closeable;
@@ -25,12 +27,20 @@ import java.util.concurrent.CompletableFuture;
  */
 final class FastdfsExecutor implements Closeable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FastdfsExecutor.class);
+
     private final NioEventLoopGroup loopGroup;
     private final FastdfsPoolGroup poolGroup;
 
     FastdfsExecutor(FastdfsSettings settings) {
         loopGroup = new NioEventLoopGroup(settings.maxThreads());
-        poolGroup = new FastdfsPoolGroup(loopGroup, settings);
+        poolGroup = new FastdfsPoolGroup(
+                loopGroup,
+                settings.connectTimeout(),
+                settings.readTimeout(),
+                settings.idleTimeout(),
+                settings.maxConnPerHost()
+        );
     }
 
     /**
@@ -106,24 +116,28 @@ final class FastdfsExecutor implements Closeable {
         }
 
         @Override
-        public void operationComplete(Future<Channel> future) throws Exception {
+        public void operationComplete(Future<Channel> cf) throws Exception {
 
-            if (future.isCancelled()) {
+            if (cf.isCancelled()) {
                 promise.cancel(true);
                 return;
             }
 
-            if (!future.isSuccess()) {
-                promise.completeExceptionally(future.cause());
+            if (!cf.isSuccess()) {
+                promise.completeExceptionally(cf.cause());
                 return;
             }
 
-            Channel channel = future.getNow();
+            Channel channel = cf.getNow();
             promise.whenComplete((result, error) -> pool.release(channel));
 
             try {
 
                 FastdfsOperation<T> fastdfsOperation = new FastdfsOperation<>(channel, requestor, replier, promise);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("execute {}", fastdfsOperation);
+                }
+
                 fastdfsOperation.execute();
             } catch (Exception e) {
                 promise.completeExceptionally(e);

@@ -10,17 +10,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author siuming
  */
 public final class FastdfsClient implements Closeable {
 
-    public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
+    public static final long DEFAULT_CONNECT_TIMEOUT = 3000;
+    public static final long DEFAULT_READ_TIMEOUT = 3000;
+    public static final long DEFAULT_IDLE_TIMEOUT = 60000;
+
     public static final int DEFAULT_MAX_THREADS = 0;
     public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
-    public static final int DEFAULT_MAX_IDLE_SECONDS = 60;
-
 
     private final FastdfsExecutor executor;
     private final TrackerClient trackerClient;
@@ -30,9 +32,10 @@ public final class FastdfsClient implements Closeable {
 
         FastdfsSettings settings = new FastdfsSettings(
                 builder.connectTimeout,
+                builder.readTimeout,
+                builder.idleTimeout,
                 builder.maxThreads,
-                builder.maxConnPerHost,
-                builder.maxIdleSeconds
+                builder.maxConnPerHost
         );
 
         this.executor = new FastdfsExecutor(settings);
@@ -536,10 +539,13 @@ public final class FastdfsClient implements Closeable {
     }
 
     public static class Builder {
-        int connectTimeout = DEFAULT_CONNECT_TIMEOUT; // 连接超时时间(毫秒)
+
+        long connectTimeout = DEFAULT_CONNECT_TIMEOUT; // 连接超时时间(毫秒)
+        long readTimeout = DEFAULT_READ_TIMEOUT;// 读超时时间(毫秒)
+        long idleTimeout = DEFAULT_IDLE_TIMEOUT;// 连接闲置时间(毫秒)
+
         int maxThreads = DEFAULT_MAX_THREADS; // 线程数量
         int maxConnPerHost = DEFAULT_MAX_CONN_PER_HOST; // 每个IP最大连接数
-        int maxIdleSeconds = DEFAULT_MAX_IDLE_SECONDS; // 最大闲置时间(秒)
 
         TrackerSelector selector = TrackerSelector.RANDOM;
         List<TrackerServer> trackers = new LinkedList<>();
@@ -547,8 +553,18 @@ public final class FastdfsClient implements Closeable {
         Builder() {
         }
 
-        public Builder connectTimeout(int connectTimeout) {
+        public Builder connectTimeout(long connectTimeout) {
             this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        public Builder readTimeout(long readTimeout) {
+            this.readTimeout = readTimeout;
+            return this;
+        }
+
+        public Builder idleTimeout(long idleTimeout) {
+            this.idleTimeout = idleTimeout;
             return this;
         }
 
@@ -562,8 +578,9 @@ public final class FastdfsClient implements Closeable {
             return this;
         }
 
+        @Deprecated
         public Builder maxIdleSeconds(int maxIdleSeconds) {
-            this.maxIdleSeconds = maxIdleSeconds;
+            this.idleTimeout = TimeUnit.SECONDS.toMillis(maxIdleSeconds);
             return this;
         }
 

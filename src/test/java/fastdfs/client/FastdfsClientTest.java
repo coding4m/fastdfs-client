@@ -5,9 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -20,9 +18,11 @@ public class FastdfsClientTest {
     @Before
     public void setUp() throws Exception {
         client = FastdfsClient.newBuilder()
-                                .maxIdleSeconds(3000)
-                                .tracker("172.16.1.25", 22222)
-                                .build();
+                .connectTimeout(3000)
+                .readTimeout(100)
+                .maxThreads(100)
+                .tracker("172.16.1.25", 22222)
+                .build();
 
     }
 
@@ -37,12 +37,6 @@ public class FastdfsClientTest {
 
     @Test
     public void testUploadAppend() throws Exception {
-        CompletableFuture<FileId> path = client.uploadAppender(new byte[0],"abc.jpg",0);
-        FileId fileId = path.get();
-        client.modify(fileId, new FileInputStream("/Users/coding4m/Downloads/1-140H20942260-L.jpg"),23753, 0).get();
-        System.out.println(fileId.toBase64String());
-        FileInfo fileInfo = client.infoGet(fileId).get();
-        System.out.println(fileInfo);
     }
 
     @Test

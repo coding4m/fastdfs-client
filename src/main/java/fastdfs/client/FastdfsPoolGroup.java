@@ -22,12 +22,23 @@ final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, F
 
     private static final Logger LOG = LoggerFactory.getLogger(FastdfsPoolGroup.class);
 
-    final EventLoopGroup loopGroup;
-    final FastdfsSettings settings;
+    private final EventLoopGroup loopGroup;
 
-    FastdfsPoolGroup(EventLoopGroup loopGroup, FastdfsSettings settings) {
+    private final long connectTimeout;
+    private final long readTimeout;
+    private final long idleTimeout;
+    private final int maxConnPerHost;
+
+    FastdfsPoolGroup(EventLoopGroup loopGroup,
+                     long connectTimeout,
+                     long readTimeout,
+                     long idleTimeout,
+                     int maxConnPerHost) {
         this.loopGroup = loopGroup;
-        this.settings = settings;
+        this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
+        this.idleTimeout = idleTimeout;
+        this.maxConnPerHost = maxConnPerHost;
     }
 
     @Override
@@ -38,9 +49,14 @@ final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, F
 
         Bootstrap bootstrap = new Bootstrap().channel(NioSocketChannel.class).group(loopGroup);
         bootstrap.remoteAddress(addr);
-        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, settings.connectTimeout());
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) connectTimeout);
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        return new FastdfsPool(bootstrap, settings.maxIdleSeconds(), settings.maxConnPerHost());
+        return new FastdfsPool(
+                bootstrap,
+                readTimeout,
+                idleTimeout,
+                maxConnPerHost
+        );
     }
 }

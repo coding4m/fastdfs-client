@@ -4,19 +4,13 @@ import fastdfs.client.exchange.Replier;
 import fastdfs.client.exchange.Requestor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author siuming
  */
 final class FastdfsOperation<T> {
-
-    private final static Logger LOG = LoggerFactory.getLogger(FastdfsOperation.class);
 
     private final Channel channel;
     private final Requestor requestor;
@@ -34,10 +28,6 @@ final class FastdfsOperation<T> {
 
         channel.pipeline().get(FastdfsHandler.class).operation(this);
         try {
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("channel {}, requestor {}, replier {}.", this);
-            }
 
             requestor.request(channel);
         } catch (Exception e) {
@@ -59,23 +49,7 @@ final class FastdfsOperation<T> {
     }
 
     void caught(Throwable cause) {
-        Throwable unwrap = cause;
-        for (; ; ) {
-
-            if (unwrap instanceof InvocationTargetException) {
-                unwrap = ((InvocationTargetException) unwrap).getTargetException();
-                continue;
-            }
-
-            if (unwrap instanceof UndeclaredThrowableException) {
-                unwrap = ((UndeclaredThrowableException) unwrap).getUndeclaredThrowable();
-                continue;
-            }
-
-            break;
-        }
-
-        promise.completeExceptionally(unwrap);
+        promise.completeExceptionally(cause);
     }
 
     @Override

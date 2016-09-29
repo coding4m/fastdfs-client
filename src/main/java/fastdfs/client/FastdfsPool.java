@@ -13,6 +13,8 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author siuming
  */
@@ -21,9 +23,11 @@ final class FastdfsPool implements ChannelPool {
     private static final Logger LOG = LoggerFactory.getLogger(FastdfsPoolGroup.class);
     private final ChannelPool channelPool;
 
-    FastdfsPool(Bootstrap bootstrap, int maxIdleSeconds, int maxConnPerHost) {
+    FastdfsPool(Bootstrap bootstrap, long readTimeout, long idleTimeout, int maxConnPerHost) {
         this.channelPool = new FixedChannelPool(
-                bootstrap, new FastdfsPoolHandler(maxIdleSeconds), maxConnPerHost
+                bootstrap,
+                new FastdfsPoolHandler(readTimeout, idleTimeout),
+                maxConnPerHost
         );
     }
 
@@ -48,10 +52,12 @@ final class FastdfsPool implements ChannelPool {
     }
 
     private static class FastdfsPoolHandler implements ChannelPoolHandler {
-        final int maxIdleSeconds; // 最大闲置时间(秒)
+        final long readTimeout;
+        final long idleTimeout; // 最大闲置时间(秒)
 
-        FastdfsPoolHandler(int maxIdleSeconds) {
-            this.maxIdleSeconds = maxIdleSeconds;
+        FastdfsPoolHandler(long readTimeout, long idleTimeout) {
+            this.readTimeout = readTimeout;
+            this.idleTimeout = idleTimeout;
         }
 
         public void channelReleased(Channel channel) throws Exception {
@@ -76,10 +82,7 @@ final class FastdfsPool implements ChannelPool {
             }
 
             ChannelPipeline pipeline = channel.pipeline();
-            if (maxIdleSeconds > 0) {
-                pipeline.addLast(new IdleStateHandler(0, 0, maxIdleSeconds));
-            }
-
+            pipeline.addLast(new IdleStateHandler(readTimeout, 0, idleTimeout, TimeUnit.MILLISECONDS));
             pipeline.addLast(new ChunkedWriteHandler()).addLast(new FastdfsHandler());
         }
     }

@@ -11,20 +11,37 @@ package fastdfs.client;
  */
 final class FastdfsSettings {
 
-    private int connectTimeout;
+    private long connectTimeout;
+    private long readTimeout;
+    private long idleTimeout;
+
     private int maxThreads;
     private int maxConnPerHost;
-    private int maxIdleSeconds;
 
-    FastdfsSettings(int connectTimeout, int maxThreads, int maxConnPerHost, int maxIdleSeconds) {
+    FastdfsSettings(long connectTimeout,
+                    long readTimeout,
+                    long idleTimeout,
+                    int maxThreads,
+                    int maxConnPerHost) {
+
         this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
+        this.idleTimeout = idleTimeout;
+
         this.maxThreads = maxThreads;
         this.maxConnPerHost = maxConnPerHost;
-        this.maxIdleSeconds = maxIdleSeconds;
     }
 
-    int connectTimeout() {
+    long connectTimeout() {
         return connectTimeout;
+    }
+
+    long readTimeout() {
+        return readTimeout;
+    }
+
+    long idleTimeout() {
+        return idleTimeout;
     }
 
     int maxThreads() {
@@ -33,9 +50,5 @@ final class FastdfsSettings {
 
     int maxConnPerHost() {
         return maxConnPerHost;
-    }
-
-    int maxIdleSeconds() {
-        return maxIdleSeconds;
     }
 }
