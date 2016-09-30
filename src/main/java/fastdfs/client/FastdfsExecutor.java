@@ -8,6 +8,7 @@ import fastdfs.client.exchange.ReplierDecoder;
 import fastdfs.client.exchange.Requestor;
 import fastdfs.client.exchange.RequestorEncoder;
 import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
@@ -29,7 +30,7 @@ final class FastdfsExecutor implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FastdfsExecutor.class);
 
-    private final NioEventLoopGroup loopGroup;
+    private final EventLoopGroup loopGroup;
     private final FastdfsPoolGroup poolGroup;
 
     FastdfsExecutor(FastdfsSettings settings) {
