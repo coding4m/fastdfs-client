@@ -327,6 +327,15 @@ public final class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param fileId
+     * @param out
+     * @return
+     */
+    public CompletableFuture<Void> download(String fileId, Object out) {
+        return download(FileId.fromString(fileId), out);
+    }
+
+    /**
      * 下载文件，其输出 output 参数支持以下类型
      * <p>
      * <ul>
@@ -353,6 +362,17 @@ public final class FastdfsClient implements Closeable {
      * @param size
      * @return
      */
+    public CompletableFuture<Void> download(String fileId, Object out, int offset, int size) {
+        return download(FileId.fromString(fileId), out, offset, size);
+    }
+
+    /**
+     * @param fileId
+     * @param out
+     * @param offset
+     * @param size
+     * @return
+     */
     public CompletableFuture<Void> download(FileId fileId, Object out, int offset, int size) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(out, "out must not be null.");
@@ -365,11 +385,28 @@ public final class FastdfsClient implements Closeable {
      * @param fileId
      * @return
      */
+    public CompletableFuture<Void> delete(String fileId) {
+        return delete(FileId.fromString(fileId));
+    }
+
+    /**
+     * @param fileId
+     * @return
+     */
     public CompletableFuture<Void> delete(FileId fileId) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         return trackerClient
                 .updateStorageGet(fileId)
                 .thenCompose(server -> storageClient.delete(server, fileId));
+    }
+
+    /**
+     * @param fileId
+     * @param file
+     * @return
+     */
+    public CompletableFuture<Void> append(String fileId, File file) {
+        return append(FileId.fromString(fileId), file);
     }
 
     /**
@@ -388,6 +425,15 @@ public final class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param fileId
+     * @param bytes
+     * @return
+     */
+    public CompletableFuture<Void> append(String fileId, byte[] bytes) {
+        return append(FileId.fromString(fileId), bytes);
+    }
+
+    /**
      * 追加文件
      *
      * @param fileId 服务器存储路径
@@ -396,6 +442,16 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<Void> append(FileId fileId, byte[] bytes) {
         return append(fileId, bytes, bytes.length);
+    }
+
+    /**
+     * @param fileId
+     * @param content
+     * @param size
+     * @return
+     */
+    public CompletableFuture<Void> append(String fileId, Object content, long size) {
+        return append(FileId.fromString(fileId), content, size);
     }
 
     /**
@@ -418,12 +474,32 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
+    public CompletableFuture<Void> modify(String fileId, File file, int offset) {
+        return modify(FileId.fromString(fileId), file, offset);
+    }
+
+    /**
+     * @param fileId
+     * @param file
+     * @param offset
+     * @return
+     */
     public CompletableFuture<Void> modify(FileId fileId, File file, int offset) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(file, "file must not be null.");
         return trackerClient
                 .updateStorageGet(fileId)
                 .thenCompose(server -> storageClient.modify(server, fileId, file, offset));
+    }
+
+    /**
+     * @param fileId
+     * @param bytes
+     * @param offset
+     * @return
+     */
+    public CompletableFuture<Void> modify(String fileId, byte[] bytes, int offset) {
+        return modify(FileId.fromString(fileId), bytes, offset);
     }
 
     /**
@@ -443,12 +519,31 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
+    public CompletableFuture<Void> modify(String fileId, Object content, long size, int offset) {
+        return modify(FileId.fromString(fileId), content, size, offset);
+    }
+
+    /**
+     * @param fileId
+     * @param content
+     * @param size
+     * @param offset
+     * @return
+     */
     public CompletableFuture<Void> modify(FileId fileId, Object content, long size, int offset) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(content, "content must not be null.");
         return trackerClient
                 .updateStorageGet(fileId)
                 .thenCompose(server -> storageClient.modify(server, fileId, content, size, offset));
+    }
+
+    /**
+     * @param fileId
+     * @return
+     */
+    public CompletableFuture<Void> truncate(String fileId) {
+        return truncate(FileId.fromString(fileId));
     }
 
     /**
@@ -459,6 +554,15 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<Void> truncate(FileId fileId) {
         return truncate(fileId, 0);
+    }
+
+    /**
+     * @param fileId
+     * @param truncatedSize
+     * @return
+     */
+    public CompletableFuture<Void> truncate(String fileId, int truncatedSize) {
+        return truncate(FileId.fromString(fileId), truncatedSize);
     }
 
     /**
@@ -476,13 +580,32 @@ public final class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param fileId
+     * @param metadata
+     * @return
+     */
+    public CompletableFuture<Void> metadataSet(String fileId, FileMetadata metadata) {
+        return metadataSet(FileId.fromString(fileId), metadata);
+    }
+
+    /**
      * 设置文件元数据
      *
      * @param fileId   服务器存储路径
      * @param metadata 元数据
      */
     public CompletableFuture<Void> metadataSet(FileId fileId, FileMetadata metadata) {
-        return metadataSet(fileId, metadata, FastdfsConstants.METADATA_OVERWRITE);
+        return metadataSet(fileId, metadata, FileMetadata.OVERWRITE_FLAG);
+    }
+
+    /**
+     * @param fileId
+     * @param metadata
+     * @param flag
+     * @return
+     */
+    public CompletableFuture<Void> metadataSet(String fileId, FileMetadata metadata, byte flag) {
+        return metadataSet(FileId.fromString(fileId), metadata, flag);
     }
 
     /**
@@ -501,6 +624,14 @@ public final class FastdfsClient implements Closeable {
     }
 
     /**
+     * @param fileId
+     * @return
+     */
+    public CompletableFuture<FileMetadata> metadataGet(String fileId) {
+        return metadataGet(FileId.fromString(fileId));
+    }
+
+    /**
      * 获取文件元数据
      *
      * @param fileId
@@ -511,6 +642,14 @@ public final class FastdfsClient implements Closeable {
         return trackerClient
                 .updateStorageGet(fileId)
                 .thenCompose(server -> storageClient.getMetadata(server, fileId));
+    }
+
+    /**
+     * @param fileId
+     * @return
+     */
+    public CompletableFuture<FileInfo> infoGet(String fileId) {
+        return infoGet(FileId.fromString(fileId));
     }
 
     /**

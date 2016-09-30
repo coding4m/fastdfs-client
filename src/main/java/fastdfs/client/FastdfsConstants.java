@@ -25,7 +25,9 @@ public interface FastdfsConstants {
     int FDFS_STORAGE_LEN = FDFS_GROUP_LEN + FDFS_HOST_LEN + FDFS_PORT_LEN; // 存储服务器信息字节数
     int FDFS_STORAGE_STORE_LEN = FDFS_STORAGE_LEN + FDFS_STORE_PATH_INDEX_LEN; // 存储服务器信息及存储路径索引字节数
 
+    @Deprecated
     byte METADATA_OVERWRITE = 'O';
+    @Deprecated
     byte METADATA_MERGE = 'M';
 
     String FDFS_RECORD_SEPERATOR = "\u0001";

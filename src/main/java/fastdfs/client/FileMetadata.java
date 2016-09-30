@@ -14,6 +14,9 @@ import static fastdfs.client.FastdfsConstants.FDFS_RECORD_SEPERATOR;
 
 public class FileMetadata {
 
+    public static byte OVERWRITE_FLAG = 'O';
+    public static byte MERGE_FLAG = 'M';
+
     private final Map<String, String> values;
 
     /**
