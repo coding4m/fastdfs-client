@@ -23,12 +23,12 @@ import static fastdfs.client.FastdfsUtils.writeFixLength;
  */
 public class FileDownloadEncoder implements Requestor.Encoder {
 
-    private static final int DEFAULT_OFFSET = 0;
-    private static final int SIZE_UNLIMIT = 0;
+    private static final long DEFAULT_OFFSET = 0L;
+    private static final long SIZE_UNLIMIT = 0L;
 
     private final FileId fileId;
-    private final int offset;
-    private final int size;
+    private final long offset;
+    private final long size;
 
     /**
      * @param fileId
@@ -42,7 +42,7 @@ public class FileDownloadEncoder implements Requestor.Encoder {
      * @param offset
      * @param size
      */
-    public FileDownloadEncoder(FileId fileId, int offset, int size) {
+    public FileDownloadEncoder(FileId fileId, long offset, long size) {
         this.fileId = fileId;
         this.offset = offset;
         this.size = size;
