@@ -3,6 +3,7 @@
  */
 package fastdfs.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public final class FastdfsClient implements Closeable {
 
     public static final long DEFAULT_CONNECT_TIMEOUT = 3000;
-    public static final long DEFAULT_READ_TIMEOUT = 3000;
+    public static final long DEFAULT_READ_TIMEOUT = 30000;
     public static final long DEFAULT_IDLE_TIMEOUT = 60000;
 
     public static final int DEFAULT_MAX_THREADS = 0;
@@ -326,6 +327,11 @@ public final class FastdfsClient implements Closeable {
                 });
     }
 
+    public CompletableFuture<byte[]> download(String fileId) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        return download(fileId, out).thenApply(res -> out.toByteArray());
+    }
+
     /**
      * @param fileId
      * @param out
@@ -333,6 +339,16 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<Void> download(String fileId, Object out) {
         return download(FileId.fromString(fileId), out);
+    }
+
+
+    /**
+     * @param fileId
+     * @return
+     */
+    public CompletableFuture<byte[]> download(FileId fileId) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        return download(fileId, out).thenApply(res -> out.toByteArray());
     }
 
     /**
@@ -357,6 +373,17 @@ public final class FastdfsClient implements Closeable {
 
     /**
      * @param fileId
+     * @param offset
+     * @param size
+     * @return
+     */
+    public CompletableFuture<byte[]> download(String fileId, long offset, long size) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        return download(fileId, out, offset, size).thenApply(res -> out.toByteArray());
+    }
+
+    /**
+     * @param fileId
      * @param out
      * @param offset
      * @param size
@@ -364,6 +391,17 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<Void> download(String fileId, Object out, long offset, long size) {
         return download(FileId.fromString(fileId), out, offset, size);
+    }
+
+    /**
+     * @param fileId
+     * @param offset
+     * @param size
+     * @return
+     */
+    public CompletableFuture<byte[]> download(FileId fileId, long offset, long size) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        return download(fileId, out, offset, size).thenApply(res -> out.toByteArray());
     }
 
     /**
