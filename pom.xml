@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fastdfs</groupId>
     <artifactId>fastdfs-client</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>fastdfs:fastdfs-client</name>
     <description>fastdfs-client is a FastDFS java client based on Netty 4.</description>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.0.34.Final</version>
+            <version>4.1.8.Final</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
