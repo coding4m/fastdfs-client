@@ -31,12 +31,12 @@
         <repository>
             <id>dddlib-releases</id>
             <name>dddlib release repository</name>
-            <url>dav:http://nexus.dddlib.org/content/repositories/releases</url>
+            <url>dav:http://nexus.workplus.io:8081/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>dddlib-snapshots</id>
             <name>dddlib snapshot repository</name>
-            <url>dav:http://nexus.dddlib.org/content/repositories/snapshots</url>
+            <url>dav:http://nexus.workplus.io:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
