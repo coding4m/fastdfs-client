@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public final class FastdfsClient implements Closeable {
 
     public static final long DEFAULT_CONNECT_TIMEOUT = 3000;
-    public static final long DEFAULT_READ_TIMEOUT = 30000;
+    public static final long DEFAULT_READ_TIMEOUT = 60000;
     public static final long DEFAULT_IDLE_TIMEOUT = 60000;
 
     public static final int DEFAULT_MAX_THREADS = 0;
@@ -377,7 +377,7 @@ public final class FastdfsClient implements Closeable {
      * @param size
      * @return
      */
-    public CompletableFuture<byte[]> download(String fileId, long offset, long size) {
+    public CompletableFuture<byte[]> download(String fileId, int offset, int size) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         return download(fileId, out, offset, size).thenApply(res -> out.toByteArray());
     }
@@ -389,7 +389,7 @@ public final class FastdfsClient implements Closeable {
      * @param size
      * @return
      */
-    public CompletableFuture<Void> download(String fileId, Object out, long offset, long size) {
+    public CompletableFuture<Void> download(String fileId, Object out, int offset, int size) {
         return download(FileId.fromString(fileId), out, offset, size);
     }
 
@@ -399,7 +399,7 @@ public final class FastdfsClient implements Closeable {
      * @param size
      * @return
      */
-    public CompletableFuture<byte[]> download(FileId fileId, long offset, long size) {
+    public CompletableFuture<byte[]> download(FileId fileId, int offset, int size) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         return download(fileId, out, offset, size).thenApply(res -> out.toByteArray());
     }
@@ -411,7 +411,7 @@ public final class FastdfsClient implements Closeable {
      * @param size
      * @return
      */
-    public CompletableFuture<Void> download(FileId fileId, Object out, long offset, long size) {
+    public CompletableFuture<Void> download(FileId fileId, Object out, int offset, int size) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(out, "out must not be null.");
         return trackerClient
@@ -512,7 +512,7 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
-    public CompletableFuture<Void> modify(String fileId, File file, long offset) {
+    public CompletableFuture<Void> modify(String fileId, File file, int offset) {
         return modify(FileId.fromString(fileId), file, offset);
     }
 
@@ -522,7 +522,7 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
-    public CompletableFuture<Void> modify(FileId fileId, File file, long offset) {
+    public CompletableFuture<Void> modify(FileId fileId, File file, int offset) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(file, "file must not be null.");
         return trackerClient
@@ -536,7 +536,7 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
-    public CompletableFuture<Void> modify(String fileId, byte[] bytes, long offset) {
+    public CompletableFuture<Void> modify(String fileId, byte[] bytes, int offset) {
         return modify(FileId.fromString(fileId), bytes, offset);
     }
 
@@ -546,7 +546,7 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
-    public CompletableFuture<Void> modify(FileId fileId, byte[] bytes, long offset) {
+    public CompletableFuture<Void> modify(FileId fileId, byte[] bytes, int offset) {
         return modify(fileId, bytes, bytes.length, offset);
     }
 
@@ -557,7 +557,7 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
-    public CompletableFuture<Void> modify(String fileId, Object content, long size, long offset) {
+    public CompletableFuture<Void> modify(String fileId, Object content, long size, int offset) {
         return modify(FileId.fromString(fileId), content, size, offset);
     }
 
@@ -568,7 +568,7 @@ public final class FastdfsClient implements Closeable {
      * @param offset
      * @return
      */
-    public CompletableFuture<Void> modify(FileId fileId, Object content, long size, long offset) {
+    public CompletableFuture<Void> modify(FileId fileId, Object content, long size, int offset) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(content, "content must not be null.");
         return trackerClient
@@ -599,7 +599,7 @@ public final class FastdfsClient implements Closeable {
      * @param truncatedSize
      * @return
      */
-    public CompletableFuture<Void> truncate(String fileId, long truncatedSize) {
+    public CompletableFuture<Void> truncate(String fileId, int truncatedSize) {
         return truncate(FileId.fromString(fileId), truncatedSize);
     }
 
@@ -610,7 +610,7 @@ public final class FastdfsClient implements Closeable {
      * @param truncatedSize 截取字节数
      * @return
      */
-    public CompletableFuture<Void> truncate(FileId fileId, long truncatedSize) {
+    public CompletableFuture<Void> truncate(FileId fileId, int truncatedSize) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         return trackerClient
                 .updateStorageGet(fileId)
