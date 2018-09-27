@@ -78,7 +78,9 @@ public final class FastdfsUtils {
      * @return
      */
     public static String readString(ByteBuf in, int length) {
-        return in.readBytes(length).toString(UTF_8).trim();
+        byte[] bytes = new byte[length];
+        in.readBytes(bytes);
+        return new String(bytes, UTF_8).trim();
     }
 
     /**
