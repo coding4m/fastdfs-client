@@ -20,6 +20,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * FastdfsExecutor
@@ -34,7 +36,15 @@ final class FastdfsExecutor implements Closeable {
     private final FastdfsPoolGroup poolGroup;
 
     FastdfsExecutor(FastdfsSettings settings) {
-        loopGroup = new NioEventLoopGroup(settings.maxThreads());
+        loopGroup = new NioEventLoopGroup(settings.maxThreads(), new ThreadFactory() {
+            final String threadPrefix = "fastdfs-io-thread-";
+            final AtomicInteger threadNumber = new AtomicInteger(1);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(null, r, threadPrefix + threadNumber.getAndIncrement());
+            }
+        });
         poolGroup = new FastdfsPoolGroup(
                 loopGroup,
                 settings.connectTimeout(),
