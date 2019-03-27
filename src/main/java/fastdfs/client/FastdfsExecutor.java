@@ -37,7 +37,7 @@ final class FastdfsExecutor implements Closeable {
 
     FastdfsExecutor(FastdfsSettings settings) {
         loopGroup = new NioEventLoopGroup(settings.maxThreads(), new ThreadFactory() {
-            final String threadPrefix = "fastdfs-io-thread-";
+            final String threadPrefix = "fastdfs-";
             final AtomicInteger threadNumber = new AtomicInteger(1);
 
             @Override
