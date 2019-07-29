@@ -24,6 +24,7 @@ public final class FastdfsClient implements Closeable {
 
     public static final int DEFAULT_MAX_THREADS = 0;
     public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
+    public static final int DEFAULT_MAX_PENDING_REQUESTS = 512;
 
     private final FastdfsExecutor executor;
     private final TrackerClient trackerClient;
@@ -36,7 +37,8 @@ public final class FastdfsClient implements Closeable {
                 builder.readTimeout,
                 builder.idleTimeout,
                 builder.maxThreads,
-                builder.maxConnPerHost
+                builder.maxConnPerHost,
+                builder.maxPendingRequests
         );
 
         this.executor = new FastdfsExecutor(settings);
@@ -723,6 +725,7 @@ public final class FastdfsClient implements Closeable {
 
         int maxThreads = DEFAULT_MAX_THREADS; // 线程数量
         int maxConnPerHost = DEFAULT_MAX_CONN_PER_HOST; // 每个IP最大连接数
+        int maxPendingRequests = DEFAULT_MAX_PENDING_REQUESTS;
 
         TrackerSelector selector = TrackerSelector.RANDOM;
         List<TrackerServer> trackers = new LinkedList<>();
@@ -752,6 +755,11 @@ public final class FastdfsClient implements Closeable {
 
         public Builder maxConnPerHost(int maxConnPerHost) {
             this.maxConnPerHost = maxConnPerHost;
+            return this;
+        }
+
+        public Builder maxPendingRequests(int maxPendingRequests) {
+            this.maxPendingRequests = maxPendingRequests;
             return this;
         }
 

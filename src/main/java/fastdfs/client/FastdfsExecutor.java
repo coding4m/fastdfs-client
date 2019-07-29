@@ -50,8 +50,8 @@ final class FastdfsExecutor implements Closeable {
                 settings.connectTimeout(),
                 settings.readTimeout(),
                 settings.idleTimeout(),
-                settings.maxConnPerHost()
-        );
+                settings.maxConnPerHost(),
+                settings.maxPendingRequests());
     }
 
     /**

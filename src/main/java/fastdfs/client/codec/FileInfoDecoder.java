@@ -19,10 +19,10 @@ public enum FileInfoDecoder implements Replier.Decoder<FileInfo> {
         long crc32 = buf.readLong();
         String address = FastdfsUtils.readString(buf, 16);
         return FileInfo.newBuilder()
-                        .fileSize(fileSize)
-                        .createTime(createTime)
-                        .crc32(crc32)
-                        .address(address)
-                        .build();
+                .fileSize(fileSize)
+                .createTime(createTime)
+                .crc32(crc32)
+                .address(address)
+                .build();
     }
 }
