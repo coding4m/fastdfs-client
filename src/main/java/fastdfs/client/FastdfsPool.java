@@ -23,8 +23,7 @@ final class FastdfsPool implements ChannelPool {
     private static final Logger LOG = LoggerFactory.getLogger(FastdfsPoolGroup.class);
     private final ChannelPool channelPool;
 
-    FastdfsPool(Bootstrap bootstrap, long readTimeout, long idleTimeout, int maxConnPerHost, int maxPendingRequests) {
-        // todo
+    FastdfsPool(Bootstrap bootstrap, long readTimeout, long idleTimeout, int maxConnPerHost) {
         this.channelPool = new FixedChannelPool(bootstrap, new FastdfsPoolHandler(readTimeout, idleTimeout), maxConnPerHost);
     }
 

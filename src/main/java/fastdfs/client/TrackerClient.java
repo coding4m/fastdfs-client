@@ -4,32 +4,28 @@
 package fastdfs.client;
 
 import fastdfs.client.codec.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
-final class TrackerClient {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TrackerClient.class);
+final class TrackerClient implements Closeable {
 
     private final FastdfsExecutor executor;
     private final TrackerSelector selector;
-    private final List<TrackerServer> servers;
+    private final TrackerChecker checker;
 
-    TrackerClient(FastdfsExecutor executor, TrackerSelector selector, List<TrackerServer> servers) {
+    TrackerClient(FastdfsExecutor executor, TrackerSelector selector, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
         this.executor = executor;
-        this.servers = Collections.unmodifiableList(servers);
+        this.checker = new TrackerChecker(executor, servers, fall, rise, checkTimeout, checkInterval);
         this.selector = servers.size() == 1 ? TrackerSelector.FIRST : selector;
-        LOG.info("TrackerClient inited with {} servers and selector {}.", servers.size(), this.selector);
     }
 
     private InetSocketAddress trackerSelect() {
-        return selector.select(servers).toInetAddress();
+        return checker.trackerSelect(selector).toInetAddress();
     }
 
     /**
@@ -72,5 +68,14 @@ final class TrackerClient {
      */
     CompletableFuture<List<StorageServer>> downloadStorageList(FileId fileId) {
         return executor.execute(trackerSelect(), new DownloadStorageListEncoder(fileId), StorageServerListDecoder.INSTANCE);
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            checker.close();
+        } catch (Exception e) {
+            // do nothing.
+        }
     }
 }

@@ -28,20 +28,17 @@ final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, F
     private final long readTimeout;
     private final long idleTimeout;
     private final int maxConnPerHost;
-    private final int maxPendingRequests;
 
     FastdfsPoolGroup(EventLoopGroup loopGroup,
                      long connectTimeout,
                      long readTimeout,
                      long idleTimeout,
-                     int maxConnPerHost,
-                     int maxPendingRequests) {
+                     int maxConnPerHost) {
         this.loopGroup = loopGroup;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
         this.idleTimeout = idleTimeout;
         this.maxConnPerHost = maxConnPerHost;
-        this.maxPendingRequests = maxPendingRequests;
     }
 
     @Override
@@ -59,8 +56,7 @@ final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, F
                 bootstrap,
                 readTimeout,
                 idleTimeout,
-                maxConnPerHost,
-                maxPendingRequests
+                maxConnPerHost
         );
     }
 }

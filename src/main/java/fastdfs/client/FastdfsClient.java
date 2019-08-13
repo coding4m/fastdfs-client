@@ -26,6 +26,11 @@ public final class FastdfsClient implements Closeable {
     public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
     public static final int DEFAULT_MAX_PENDING_REQUESTS = 512;
 
+    public static final int DEFAULT_RISE = 1;
+    public static final int DEFAULT_FALL = 3;
+    public static final long DEFAULT_CHECK_TIMEOUT = 1000;
+    public static final long DEFAULT_CHECK_INTERVAL = 3000;
+
     private final FastdfsExecutor executor;
     private final TrackerClient trackerClient;
     private final StorageClient storageClient;
@@ -37,12 +42,11 @@ public final class FastdfsClient implements Closeable {
                 builder.readTimeout,
                 builder.idleTimeout,
                 builder.maxThreads,
-                builder.maxConnPerHost,
-                builder.maxPendingRequests
+                builder.maxConnPerHost
         );
 
         this.executor = new FastdfsExecutor(settings);
-        this.trackerClient = new TrackerClient(executor, builder.selector, builder.trackers);
+        this.trackerClient = new TrackerClient(executor, builder.selector, builder.trackers, builder.fall, builder.rise, builder.checkTimeout, builder.checkInterval);
         this.storageClient = new StorageClient(executor);
     }
 
@@ -708,6 +712,7 @@ public final class FastdfsClient implements Closeable {
     @Override
     public void close() throws IOException {
         executor.close();
+        trackerClient.close();
     }
 
     /**
@@ -726,6 +731,11 @@ public final class FastdfsClient implements Closeable {
         int maxThreads = DEFAULT_MAX_THREADS; // 线程数量
         int maxConnPerHost = DEFAULT_MAX_CONN_PER_HOST; // 每个IP最大连接数
         int maxPendingRequests = DEFAULT_MAX_PENDING_REQUESTS;
+
+        int rise = DEFAULT_RISE;
+        int fall = DEFAULT_FALL;
+        long checkTimeout = DEFAULT_CHECK_TIMEOUT;
+        long checkInterval = DEFAULT_CHECK_INTERVAL;
 
         TrackerSelector selector = TrackerSelector.RANDOM;
         List<TrackerServer> trackers = new LinkedList<>();
@@ -766,6 +776,20 @@ public final class FastdfsClient implements Closeable {
         @Deprecated
         public Builder maxIdleSeconds(int maxIdleSeconds) {
             this.idleTimeout = TimeUnit.SECONDS.toMillis(maxIdleSeconds);
+            return this;
+        }
+
+        public Builder healthCheck(int fall, int rise, long checkTimeout, long checkInterval) {
+            this.fall = fall;
+            this.rise = rise;
+            this.checkTimeout = checkTimeout;
+            this.checkInterval = checkInterval;
+            return this;
+        }
+
+        public Builder healthCheck(long checkTimeout, long checkInterval, TimeUnit unit) {
+            this.checkTimeout = unit.toMillis(checkTimeout);
+            this.checkInterval = unit.toMillis(checkInterval);
             return this;
         }
 
