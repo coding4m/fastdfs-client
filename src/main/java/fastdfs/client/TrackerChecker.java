@@ -108,6 +108,7 @@ class TrackerChecker implements Closeable {
         logger.warn("TrackerServer[host={}, port={}] down.", server.host(), server.port());
         aliveServers.remove(server);
         ariseServers.remove(server);
+        alivenessServers.remove(server);
     }
 
     @Override
