@@ -26,7 +26,7 @@ public final class FastdfsClient implements Closeable {
     public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
     public static final int DEFAULT_MAX_PENDING_REQUESTS = 512;
 
-    public static final int DEFAULT_HEALTH_RISE = 1;
+    public static final int DEFAULT_HEALTH_RISE = 2;
     public static final int DEFAULT_HEALTH_FALL = 3;
     public static final long DEFAULT_CHECK_TIMEOUT = 3000;
     public static final long DEFAULT_CHECK_INTERVAL = 10000;
