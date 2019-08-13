@@ -24,8 +24,14 @@ final class TrackerClient implements Closeable {
         this.selector = servers.size() == 1 ? TrackerSelector.FIRST : selector;
     }
 
-    private InetSocketAddress trackerSelect() {
-        return checker.trackerSelect(selector).toInetAddress();
+    private CompletableFuture<InetSocketAddress> trackerSelect() {
+        CompletableFuture<InetSocketAddress> promise = new CompletableFuture<>();
+        try {
+            promise.complete(checker.trackerSelect(selector).toInetAddress());
+        } catch (Exception e) {
+            promise.completeExceptionally(e);
+        }
+        return promise;
     }
 
     /**
@@ -40,7 +46,7 @@ final class TrackerClient implements Closeable {
      * @return
      */
     CompletableFuture<StorageServer> uploadStorageGet(String group) {
-        return executor.execute(trackerSelect(), new UploadStorageGetEncoder(group), StorageServerDecoder.INSTANCE);
+        return trackerSelect().thenCompose(addr -> executor.execute(addr, new UploadStorageGetEncoder(group), StorageServerDecoder.INSTANCE));
     }
 
     /**
@@ -48,7 +54,7 @@ final class TrackerClient implements Closeable {
      * @return
      */
     CompletableFuture<StorageServer> downloadStorageGet(FileId fileId) {
-        CompletableFuture<List<StorageServer>> result = executor.execute(trackerSelect(), new DownloadStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE);
+        CompletableFuture<List<StorageServer>> result = trackerSelect().thenCompose((addr -> executor.execute(addr, new DownloadStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE)));
         return result.thenApply(FastdfsUtils::first);
     }
 
@@ -58,7 +64,7 @@ final class TrackerClient implements Closeable {
      * @param fileId
      */
     CompletableFuture<StorageServer> updateStorageGet(FileId fileId) {
-        CompletableFuture<List<StorageServer>> result = executor.execute(trackerSelect(), new UpdateStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE);
+        CompletableFuture<List<StorageServer>> result = trackerSelect().thenCompose(addr -> executor.execute(addr, new UpdateStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE));
         return result.thenApply(FastdfsUtils::first);
     }
 
@@ -67,7 +73,7 @@ final class TrackerClient implements Closeable {
      * @return
      */
     CompletableFuture<List<StorageServer>> downloadStorageList(FileId fileId) {
-        return executor.execute(trackerSelect(), new DownloadStorageListEncoder(fileId), StorageServerListDecoder.INSTANCE);
+        return trackerSelect().thenCompose(addr -> executor.execute(addr, new DownloadStorageListEncoder(fileId), StorageServerListDecoder.INSTANCE));
     }
 
     @Override
