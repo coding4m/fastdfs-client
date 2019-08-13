@@ -16,18 +16,18 @@ final class TrackerClient implements Closeable {
 
     private final FastdfsExecutor executor;
     private final TrackerSelector selector;
-    private final TrackerChecker checker;
+    private final TrackerMonitor monitor;
 
     TrackerClient(FastdfsExecutor executor, TrackerSelector selector, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
         this.executor = executor;
-        this.checker = new TrackerChecker(executor, servers, fall, rise, checkTimeout, checkInterval);
         this.selector = servers.size() == 1 ? TrackerSelector.FIRST : selector;
+        this.monitor = new TrackerMonitor(executor, servers, fall, rise, checkTimeout, checkInterval);
     }
 
     private CompletableFuture<InetSocketAddress> trackerSelect() {
         CompletableFuture<InetSocketAddress> promise = new CompletableFuture<>();
         try {
-            promise.complete(checker.trackerSelect(selector).toInetAddress());
+            promise.complete(monitor.trackerSelect(selector).toInetAddress());
         } catch (Exception e) {
             promise.completeExceptionally(e);
         }
@@ -79,7 +79,7 @@ final class TrackerClient implements Closeable {
     @Override
     public void close() throws IOException {
         try {
-            checker.close();
+            monitor.close();
         } catch (Exception e) {
             // do nothing.
         }

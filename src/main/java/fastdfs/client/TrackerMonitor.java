@@ -7,32 +7,33 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
-class TrackerChecker implements Closeable {
+class TrackerMonitor implements Closeable {
+
     private final int fall;
     private final int rise;
     private final List<TrackerServer> aliveServers;
     private final List<ScheduledFuture<?>> aliveTasks;
+
     private final Map<TrackerServer, Integer> ariseServers = new HashMap<>();
     private final Map<TrackerServer, Integer> alivenessServers = new HashMap<>();
+
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    TrackerChecker(FastdfsExecutor executor, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
+    TrackerMonitor(FastdfsExecutor executor, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
         this.fall = fall;
         this.rise = rise;
 
-        this.aliveServers = new ArrayList<>(servers);
-        this.aliveTasks = servers.stream().map(server -> executor.scheduleAtFixedRate(() -> {
+        this.aliveServers = new LinkedList<>(servers);
+        this.aliveTasks = new HashSet<>(servers).stream().map(server -> executor.scheduleAtFixedRate(() -> {
             try {
                 CompletableFuture<Boolean> promise = executor.execute(server.toInetAddress(), new ActiveTestRequestor(), new ActiveTestReplier());
                 if (promise.get(checkTimeout, TimeUnit.MILLISECONDS)) {
@@ -40,6 +41,8 @@ class TrackerChecker implements Closeable {
                     return;
                 }
                 trackerUnreachable(server, null);
+            } catch (ExecutionException e) {
+                trackerUnreachable(server, e.getCause());
             } catch (Exception e) {
                 trackerUnreachable(server, e);
             }
@@ -79,9 +82,11 @@ class TrackerChecker implements Closeable {
     }
 
     private void trackerUp(TrackerServer server) {
-        logger.info("TrackerServer[host={}, port={}] up.", server.host(), server.port());
+        logger.warn("TrackerServer[host={}, port={}] Up.", server.host(), server.port());
+
         ariseServers.remove(server);
         alivenessServers.remove(server);
+
         aliveServers.remove(server);
         aliveServers.add(server);
     }
@@ -95,7 +100,7 @@ class TrackerChecker implements Closeable {
 
             Integer alivenessTimes = alivenessServers.getOrDefault(server, 0);
             if (alivenessTimes >= fall - 1) {
-                trackerDown(server);
+                trackerDown(server, e);
                 return;
             }
             alivenessServers.put(server, alivenessTimes + 1);
@@ -104,8 +109,10 @@ class TrackerChecker implements Closeable {
         }
     }
 
-    private void trackerDown(TrackerServer server) {
-        logger.warn("TrackerServer[host={}, port={}] down.", server.host(), server.port());
+    private void trackerDown(TrackerServer server, Throwable e) {
+        if (logger.isErrorEnabled()) {
+            logger.error(String.format("TrackerServer[host=%s, port=%s] Down.", server.host(), server.port()), e);
+        }
         aliveServers.remove(server);
         ariseServers.remove(server);
         alivenessServers.remove(server);
