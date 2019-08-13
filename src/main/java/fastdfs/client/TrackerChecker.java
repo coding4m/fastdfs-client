@@ -89,6 +89,10 @@ class TrackerChecker implements Closeable {
     private void trackerUnreachable(TrackerServer server, Throwable e) {
         try {
             lock.writeLock().lock();
+            if (!aliveServers.contains(server)) {
+                return;
+            }
+
             Integer alivenessTimes = alivenessServers.getOrDefault(server, 0);
             if (alivenessTimes >= fall - 1) {
                 trackerDown(server);
