@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,8 @@ public final class FastdfsClient implements Closeable {
     public static final long DEFAULT_CHECK_INTERVAL = 10000;
 
     private final FastdfsExecutor executor;
+    private final FastdfsScheduler scheduler;
+
     private final TrackerClient trackerClient;
     private final StorageClient storageClient;
 
@@ -46,7 +49,8 @@ public final class FastdfsClient implements Closeable {
         );
 
         this.executor = new FastdfsExecutor(settings);
-        this.trackerClient = new TrackerClient(executor, builder.selector, builder.trackers, builder.fall, builder.rise, builder.checkTimeout, builder.checkInterval);
+        this.scheduler = new FastdfsScheduler(new HashSet<>(builder.trackers).size());
+        this.trackerClient = new TrackerClient(executor, scheduler, builder.selector, builder.trackers, builder.fall, builder.rise, builder.checkTimeout, builder.checkInterval);
         this.storageClient = new StorageClient(executor);
     }
 
@@ -711,7 +715,18 @@ public final class FastdfsClient implements Closeable {
 
     @Override
     public void close() throws IOException {
-        executor.close();
+        try {
+            executor.close();
+        } catch (Exception e) {
+            // do nothing;
+        }
+
+        try {
+            scheduler.close();
+        } catch (Exception e) {
+            // do nothing;
+        }
+
         trackerClient.close();
     }
 

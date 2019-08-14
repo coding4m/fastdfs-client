@@ -28,12 +28,12 @@ class TrackerMonitor implements Closeable {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    TrackerMonitor(FastdfsExecutor executor, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
+    TrackerMonitor(FastdfsExecutor executor, FastdfsScheduler scheduler, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
         this.fall = fall;
         this.rise = rise;
 
         this.aliveServers = new LinkedList<>(servers);
-        this.aliveTasks = new HashSet<>(servers).stream().map(server -> executor.scheduleAtFixedRate(() -> {
+        this.aliveTasks = new HashSet<>(servers).stream().map(server -> scheduler.scheduleAtFixedRate(() -> {
             try {
                 CompletableFuture<Boolean> promise = executor.execute(server.toInetAddress(), new ActiveTestRequestor(), new ActiveTestReplier());
                 if (promise.get(checkTimeout, TimeUnit.MILLISECONDS)) {
