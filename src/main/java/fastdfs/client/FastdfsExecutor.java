@@ -12,6 +12,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.ScheduledFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,11 @@ import javax.annotation.PreDestroy;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * FastdfsExecutor
@@ -34,14 +39,21 @@ final class FastdfsExecutor implements Closeable {
     private final FastdfsPoolGroup poolGroup;
 
     FastdfsExecutor(FastdfsSettings settings) {
-        loopGroup = new NioEventLoopGroup(settings.maxThreads());
+        loopGroup = new NioEventLoopGroup(settings.maxThreads(), new ThreadFactory() {
+            final String threadPrefix = "fastdfs-";
+            final AtomicInteger threadNumber = new AtomicInteger(1);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(null, r, threadPrefix + threadNumber.getAndIncrement());
+            }
+        });
         poolGroup = new FastdfsPoolGroup(
                 loopGroup,
                 settings.connectTimeout(),
                 settings.readTimeout(),
                 settings.idleTimeout(),
-                settings.maxConnPerHost()
-        );
+                settings.maxConnPerHost());
     }
 
     /**
@@ -83,6 +95,22 @@ final class FastdfsExecutor implements Closeable {
     private <T> void execute(InetSocketAddress addr, Requestor requestor, Replier<T> replier, CompletableFuture<T> promise) {
         FastdfsPool pool = poolGroup.get(addr);
         pool.acquire().addListener(new FastdfsChannelListener<>(pool, requestor, replier, promise));
+    }
+
+    ScheduledFuture<?> schedule(Runnable runnable, long delay, TimeUnit unit) {
+        return loopGroup.schedule(runnable, delay, unit);
+    }
+
+    <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
+        return loopGroup.schedule(callable, delay, unit);
+    }
+
+    ScheduledFuture<?> scheduleAtFixedRate(Runnable runnable, long delay, long rate, TimeUnit unit) {
+        return loopGroup.scheduleAtFixedRate(runnable, delay, rate, unit);
+    }
+
+    ScheduledFuture<?> scheduleWithFixedDelay(Runnable runnable, long delay, long rate, TimeUnit unit) {
+        return loopGroup.scheduleWithFixedDelay(runnable, delay, rate, unit);
     }
 
     @PreDestroy
@@ -130,7 +158,13 @@ final class FastdfsExecutor implements Closeable {
             }
 
             Channel channel = cf.getNow();
-            promise.whenComplete((result, error) -> pool.release(channel));
+            promise.whenComplete((result, error) -> {
+                if (null != error) {
+                    channel.close();
+                }
+
+                pool.release(channel);
+            });
 
             try {
 

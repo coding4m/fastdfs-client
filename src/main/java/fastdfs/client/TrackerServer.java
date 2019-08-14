@@ -1,6 +1,7 @@
 package fastdfs.client;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author siuming
@@ -56,6 +57,21 @@ public class TrackerServer {
      */
     public InetSocketAddress toInetAddress() {
         return new InetSocketAddress(host, port);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrackerServer that = (TrackerServer) o;
+        return port == that.port &&
+                weight == that.weight &&
+                Objects.equals(host, that.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host, port, weight);
     }
 
     @Override

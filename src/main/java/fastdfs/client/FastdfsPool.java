@@ -24,11 +24,7 @@ final class FastdfsPool implements ChannelPool {
     private final ChannelPool channelPool;
 
     FastdfsPool(Bootstrap bootstrap, long readTimeout, long idleTimeout, int maxConnPerHost) {
-        this.channelPool = new FixedChannelPool(
-                bootstrap,
-                new FastdfsPoolHandler(readTimeout, idleTimeout),
-                maxConnPerHost
-        );
+        this.channelPool = new FixedChannelPool(bootstrap, new FastdfsPoolHandler(readTimeout, idleTimeout), maxConnPerHost);
     }
 
     public Future<Channel> acquire() {
@@ -83,7 +79,8 @@ final class FastdfsPool implements ChannelPool {
 
             ChannelPipeline pipeline = channel.pipeline();
             pipeline.addLast(new IdleStateHandler(readTimeout, 0, idleTimeout, TimeUnit.MILLISECONDS));
-            pipeline.addLast(new ChunkedWriteHandler()).addLast(new FastdfsHandler());
+            pipeline.addLast(new ChunkedWriteHandler());
+            pipeline.addLast(new FastdfsHandler());
         }
     }
 }
