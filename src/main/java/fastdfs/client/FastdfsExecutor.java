@@ -12,7 +12,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
-import io.netty.util.concurrent.ScheduledFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,10 +19,8 @@ import javax.annotation.PreDestroy;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -95,22 +92,6 @@ final class FastdfsExecutor implements Closeable {
     private <T> void execute(InetSocketAddress addr, Requestor requestor, Replier<T> replier, CompletableFuture<T> promise) {
         FastdfsPool pool = poolGroup.get(addr);
         pool.acquire().addListener(new FastdfsChannelListener<>(pool, requestor, replier, promise));
-    }
-
-    ScheduledFuture<?> schedule(Runnable runnable, long delay, TimeUnit unit) {
-        return loopGroup.schedule(runnable, delay, unit);
-    }
-
-    <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
-        return loopGroup.schedule(callable, delay, unit);
-    }
-
-    ScheduledFuture<?> scheduleAtFixedRate(Runnable runnable, long delay, long rate, TimeUnit unit) {
-        return loopGroup.scheduleAtFixedRate(runnable, delay, rate, unit);
-    }
-
-    ScheduledFuture<?> scheduleWithFixedDelay(Runnable runnable, long delay, long rate, TimeUnit unit) {
-        return loopGroup.scheduleWithFixedDelay(runnable, delay, rate, unit);
     }
 
     @PreDestroy
