@@ -95,6 +95,7 @@ class TrackerMonitor implements Closeable {
         try {
             lock.writeLock().lock();
             if (!aliveServers.contains(server)) {
+                ariseServers.remove(server);
                 return;
             }
 
