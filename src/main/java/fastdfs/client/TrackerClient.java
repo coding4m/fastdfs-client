@@ -18,10 +18,10 @@ final class TrackerClient implements Closeable {
     private final TrackerSelector selector;
     private final TrackerMonitor monitor;
 
-    TrackerClient(FastdfsExecutor executor, TrackerSelector selector, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
+    TrackerClient(FastdfsExecutor executor, FastdfsScheduler scheduler, TrackerSelector selector, List<TrackerServer> servers, int fall, int rise, long checkTimeout, long checkInterval) {
         this.executor = executor;
         this.selector = servers.size() == 1 ? TrackerSelector.FIRST : selector;
-        this.monitor = new TrackerMonitor(executor, servers, fall, rise, checkTimeout, checkInterval);
+        this.monitor = new TrackerMonitor(executor, scheduler, servers, fall, rise, checkTimeout, checkInterval);
     }
 
     private CompletableFuture<InetSocketAddress> trackerSelect() {
