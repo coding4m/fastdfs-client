@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fastdfs</groupId>
     <artifactId>fastdfs-client</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
     <name>fastdfs:fastdfs-client</name>
     <description>fastdfs-client is a FastDFS java client based on Netty 4.</description>
@@ -17,7 +17,7 @@
     </licenses>
 
     <scm>
-        <url>https://git.oschina.net/workplus/fastdfs-client.git</url>
+        <url>https://gitee.net/workplus/fastdfs-client.git</url>
     </scm>
 
     <properties>
@@ -31,19 +31,19 @@
         <repository>
             <id>dddlib-releases</id>
             <name>dddlib release repository</name>
-            <url>dav:http://nexus.dddlib.org/content/repositories/releases</url>
+            <url>dav:http://nexus.workplus.io:8081/repository/maven-releases</url>
         </repository>
         <snapshotRepository>
             <id>dddlib-snapshots</id>
             <name>dddlib snapshot repository</name>
-            <url>dav:http://nexus.dddlib.org/content/repositories/snapshots</url>
+            <url>dav:http://nexus.workplus.io:8081/repository/maven-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
     <repositories>
         <repository>
             <id>dddlib-releases</id>
-            <url>http://nexus.dddlib.org/content/groups/public-releases</url>
+            <url>http://nexus.workplus.io:8081/repository/maven-releases</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -53,7 +53,7 @@
         </repository>
         <repository>
             <id>dddlib-snapshots</id>
-            <url>http://nexus.dddlib.org/content/groups/public-snapshots</url>
+            <url>http://nexus.workplus.io:8081/repository/maven-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -67,7 +67,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>dddlib-releases</id>
-            <url>http://nexus.dddlib.org/content/groups/public-releases</url>
+            <url>http://nexus.workplus.io:8081/repository/maven-releases</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -77,7 +77,7 @@
         </pluginRepository>
         <pluginRepository>
             <id>dddlib-snapshots</id>
-            <url>http://nexus.dddlib.org/content/groups/public-snapshots</url>
+            <url>http://nexus.workplus.io:8081/repository/maven-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.8.Final</version>
+            <version>4.1.33.Final</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

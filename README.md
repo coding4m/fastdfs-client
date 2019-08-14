@@ -12,9 +12,11 @@ based on [Netty 4](http://netty.io) .
 ```java
     
     // FastdfsClient is threadsafe and use connection pool.
+    // default is enable HealthCheck.
     FastdfsClient  client = FastdfsClient.newBuilder()
                                             .connectTimeout(3000)
                                             .readTimeout(100)
+                                            .healthCheck(3, 2, 3000, 10000)
                                             .tracker("192.168.1.2", 22222)
                                             .build();
     

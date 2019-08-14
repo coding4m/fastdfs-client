@@ -146,7 +146,7 @@ final class StorageClient {
      * @param offset
      * @return
      */
-    CompletableFuture<Void> modify(StorageServer server, FileId fileId, File file, int offset) {
+    CompletableFuture<Void> modify(StorageServer server, FileId fileId, File file, long offset) {
         return executor.execute(
                 server.toInetAddress(),
                 new FileModifyEncoder(fileId, file, offset),
@@ -163,7 +163,7 @@ final class StorageClient {
      * @param bytes  内容字节数组
      * @return
      */
-    CompletableFuture<Void> modify(StorageServer server, FileId fileId, byte[] bytes, int offset) {
+    CompletableFuture<Void> modify(StorageServer server, FileId fileId, byte[] bytes, long offset) {
         return executor.execute(
                 server.toInetAddress(),
                 new FileModifyEncoder(fileId, bytes, bytes.length, offset),
@@ -179,7 +179,7 @@ final class StorageClient {
      * @param offset
      * @return
      */
-    CompletableFuture<Void> modify(StorageServer server, FileId fileId, Object content, long size, int offset) {
+    CompletableFuture<Void> modify(StorageServer server, FileId fileId, Object content, long size, long offset) {
         return executor.execute(
                 server.toInetAddress(),
                 new FileModifyEncoder(fileId, content, size, offset),
@@ -208,7 +208,7 @@ final class StorageClient {
      * @param fileId 服务器存储路径
      */
     CompletableFuture<Void> truncate(StorageServer server, FileId fileId) {
-        return truncate(server, fileId, 0);
+        return truncate(server, fileId, 0L);
     }
 
     /**
@@ -218,7 +218,7 @@ final class StorageClient {
      * @param fileId        服务器存储路径
      * @param truncatedSize 截取文件大小
      */
-    CompletableFuture<Void> truncate(StorageServer server, FileId fileId, int truncatedSize) {
+    CompletableFuture<Void> truncate(StorageServer server, FileId fileId, long truncatedSize) {
         return executor.execute(
                 server.toInetAddress(),
                 new FileTruncateEncoder(fileId, truncatedSize),
@@ -257,7 +257,7 @@ final class StorageClient {
      * @param output 输出流
      * @return 下载进度
      */
-    CompletableFuture<Void> download(StorageServer server, FileId fileId, Object output, int offset, int size) {
+    CompletableFuture<Void> download(StorageServer server, FileId fileId, Object output, long offset, long size) {
         return executor.execute(
                 server.toInetAddress(),
                 new FileDownloadEncoder(fileId, offset, size),
