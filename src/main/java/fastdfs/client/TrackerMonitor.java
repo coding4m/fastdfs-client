@@ -34,8 +34,9 @@ class TrackerMonitor implements Closeable {
 
         this.aliveServers = new LinkedList<>(servers);
         this.aliveTasks = new HashSet<>(servers).stream().map(server -> scheduler.scheduleAtFixedRate(() -> {
+            CompletableFuture<Boolean> promise = null;
             try {
-                CompletableFuture<Boolean> promise = executor.execute(server.toInetAddress(), new ActiveTestRequestor(), new ActiveTestReplier());
+                promise = executor.execute(server.toInetAddress(), new ActiveTestRequestor(), new ActiveTestReplier());
                 if (promise.get(checkTimeout, TimeUnit.MILLISECONDS)) {
                     trackerReachable(server);
                     return;
@@ -45,6 +46,10 @@ class TrackerMonitor implements Closeable {
                 trackerUnreachable(server, e.getCause());
             } catch (Exception e) {
                 trackerUnreachable(server, e);
+            } finally {
+                if (null != promise) {
+                    promise.cancel(true);
+                }
             }
         }, checkInterval, checkInterval, TimeUnit.MILLISECONDS)).collect(Collectors.toList());
     }
