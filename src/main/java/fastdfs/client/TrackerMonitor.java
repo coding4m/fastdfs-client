@@ -82,7 +82,9 @@ class TrackerMonitor implements Closeable {
     }
 
     private void trackerUp(TrackerServer server) {
-        logger.warn("Server[host={}, port={}] Up.", server.host(), server.port());
+        if (logger.isInfoEnabled()) {
+            logger.info("Server[host={}, port={}] Up.", server.host(), server.port());
+        }
 
         ariseServers.remove(server);
         alivenessServers.remove(server);
@@ -111,8 +113,8 @@ class TrackerMonitor implements Closeable {
     }
 
     private void trackerDown(TrackerServer server, Throwable e) {
-        if (logger.isErrorEnabled()) {
-            logger.error(String.format("Server[host=%s, port=%s] Down.", server.host(), server.port()), e);
+        if (logger.isInfoEnabled()) {
+            logger.info("Server[host={}, port={}] Down. Cause by: {}.", server.host(), server.port(), e.getMessage());
         }
         aliveServers.remove(server);
         ariseServers.remove(server);
