@@ -78,7 +78,7 @@ final class FastdfsPool implements ChannelPool {
             }
 
             ChannelPipeline pipeline = channel.pipeline();
-            pipeline.addLast(new IdleStateHandler(readTimeout, 0, 0, TimeUnit.MILLISECONDS));
+            pipeline.addLast(new IdleStateHandler(readTimeout, 0, idleTimeout, TimeUnit.MILLISECONDS));
             pipeline.addLast(new ChunkedWriteHandler());
             pipeline.addLast(new FastdfsHandler());
         }

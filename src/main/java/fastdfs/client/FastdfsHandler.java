@@ -54,6 +54,12 @@ final class FastdfsHandler extends ByteToMessageDecoder {
                 );
             }
         }
+
+        // all idle event.
+        if (evt == IdleStateEvent.FIRST_ALL_IDLE_STATE_EVENT
+                || evt == IdleStateEvent.ALL_IDLE_STATE_EVENT) {
+            throw new FastdfsTimeoutException("fastdfs channel was idle timeout.");
+        }
     }
 
     @Override
