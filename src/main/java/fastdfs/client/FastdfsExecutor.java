@@ -141,7 +141,8 @@ final class FastdfsExecutor implements Closeable {
             Channel channel = cf.getNow();
             promise.whenComplete((result, error) -> {
                 if (null != error) {
-                    channel.close();
+                    channel.close().addListener(ignore -> pool.release(channel));
+                    return;
                 }
 
                 pool.release(channel);

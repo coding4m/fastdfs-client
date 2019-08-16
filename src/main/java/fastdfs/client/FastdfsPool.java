@@ -61,7 +61,7 @@ final class FastdfsPool implements ChannelPool {
                 LOG.debug("channel released : {}", channel.toString());
             }
 
-            channel.pipeline().get(FastdfsHandler.class).operation(null);
+            channel.attr(FastdfsHandler.OPERATION_KEY).set(null);
         }
 
         public void channelAcquired(Channel channel) throws Exception {
@@ -69,7 +69,7 @@ final class FastdfsPool implements ChannelPool {
                 LOG.debug("channel acquired : {}", channel.toString());
             }
 
-            channel.pipeline().get(FastdfsHandler.class).operation(null);
+            channel.attr(FastdfsHandler.OPERATION_KEY).set(null);
         }
 
         public void channelCreated(Channel channel) throws Exception {
@@ -78,7 +78,7 @@ final class FastdfsPool implements ChannelPool {
             }
 
             ChannelPipeline pipeline = channel.pipeline();
-            pipeline.addLast(new IdleStateHandler(readTimeout, 0, idleTimeout, TimeUnit.MILLISECONDS));
+            pipeline.addLast(new IdleStateHandler(readTimeout, 0, 0, TimeUnit.MILLISECONDS));
             pipeline.addLast(new ChunkedWriteHandler());
             pipeline.addLast(new FastdfsHandler());
         }
