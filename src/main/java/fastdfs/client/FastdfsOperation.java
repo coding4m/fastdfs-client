@@ -26,7 +26,7 @@ final class FastdfsOperation<T> {
 
     void execute() {
 
-        channel.pipeline().get(FastdfsHandler.class).operation(this);
+        channel.attr(FastdfsHandler.OPERATION_KEY).set(this);
         try {
 
             requestor.request(channel);
