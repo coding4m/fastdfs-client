@@ -76,9 +76,12 @@ final class FastdfsHandler extends ByteToMessageDecoder {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         FastdfsOperation<?> operation = ctx.channel().attr(OPERATION_KEY).get();
-        if (null != operation) {
-            operation.caught(translateException(cause));
-        } else ctx.close();
+        if(null == operation) {
+            ctx.close();
+            return;
+        }
+
+        operation.caught(translateException(cause));
     }
 
     private Throwable translateException(Throwable cause) {
