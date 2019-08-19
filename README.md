@@ -1,7 +1,7 @@
 # fastdfs-client
 
-fastdfs-client is a [FastDFS](https://github.com/happyfish100/fastdfs) java client 
-based on [Netty 4](http://netty.io) .
+fastdfs-client is a [FastDFS](https://github.coma/happyfish100/fstdfs) java client 
+based on [Netty 4](http://netty.io) . support multiple tracker server pool and active tracker server health check .
 
 ## Requirements
 
@@ -12,7 +12,6 @@ based on [Netty 4](http://netty.io) .
 ```java
     
     // FastdfsClient is threadsafe and use connection pool.
-    // default is enable HealthCheck.
     FastdfsClient  client = FastdfsClient.newBuilder()
                                             .connectTimeout(3000)
                                             .readTimeout(100)

@@ -794,6 +794,14 @@ public final class FastdfsClient implements Closeable {
             return this;
         }
 
+        /**
+         *
+         * @param fall times after check failure, the server is marked down.
+         * @param rise times after check success, the server is marked up.
+         * @param checkTimeout
+         * @param checkInterval
+         * @return
+         */
         public Builder healthCheck(int fall, int rise, long checkTimeout, long checkInterval) {
             this.fall = fall;
             this.rise = rise;
