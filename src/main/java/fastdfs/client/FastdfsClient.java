@@ -25,7 +25,7 @@ public final class FastdfsClient implements Closeable {
 
     public static final int DEFAULT_MAX_THREADS = 0;
     public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
-    public static final int DEFAULT_MAX_PENDING_REQUESTS = 512;
+    public static final int DEFAULT_MAX_PENDING_REQUESTS = 256;
 
     public static final int DEFAULT_HEALTH_RISE = 2;
     public static final int DEFAULT_HEALTH_FALL = 3;
@@ -45,7 +45,8 @@ public final class FastdfsClient implements Closeable {
                 builder.readTimeout,
                 builder.idleTimeout,
                 builder.maxThreads,
-                builder.maxConnPerHost
+                builder.maxConnPerHost,
+                builder.maxPendingRequests
         );
 
         this.executor = new FastdfsExecutor(settings);

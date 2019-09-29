@@ -17,12 +17,14 @@ final class FastdfsSettings {
 
     private int maxThreads;
     private int maxConnPerHost;
+    private int maxPendingRequests;
 
     FastdfsSettings(long connectTimeout,
                     long readTimeout,
                     long idleTimeout,
                     int maxThreads,
-                    int maxConnPerHost) {
+                    int maxConnPerHost,
+                    int maxPendingRequests) {
 
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
@@ -30,6 +32,7 @@ final class FastdfsSettings {
 
         this.maxThreads = maxThreads;
         this.maxConnPerHost = maxConnPerHost;
+        this.maxPendingRequests = maxPendingRequests;
     }
 
     long connectTimeout() {
@@ -50,5 +53,9 @@ final class FastdfsSettings {
 
     int maxConnPerHost() {
         return maxConnPerHost;
+    }
+
+    int maxPendingRequests() {
+        return maxPendingRequests;
     }
 }
