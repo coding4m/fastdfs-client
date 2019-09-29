@@ -753,7 +753,8 @@ public final class FastdfsClient implements Closeable {
         long checkTimeout = DEFAULT_CHECK_TIMEOUT;
         long checkInterval = DEFAULT_CHECK_INTERVAL;
 
-        TrackerSelector selector = TrackerSelector.RANDOM;
+        //
+        TrackerSelector selector = TrackerSelector.FIRST;
         List<TrackerServer> trackers = new LinkedList<>();
 
         Builder() {
