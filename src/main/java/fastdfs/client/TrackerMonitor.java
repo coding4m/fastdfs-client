@@ -119,7 +119,7 @@ class TrackerMonitor implements Closeable {
 
     private void trackerDown(TrackerServer server, Throwable e) {
         if (logger.isInfoEnabled()) {
-            logger.info("Server[host={}, port={}] Down. Cause by: {}.", server.host(), server.port(), e.getMessage());
+            logger.info("Server[host={}, port={}] Down. Cause by: {}.", server.host(), server.port(), e == null ? "" : e.getMessage());
         }
         aliveServers.remove(server);
         ariseServers.remove(server);
