@@ -4,6 +4,7 @@
 package fastdfs.client;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 常量定义
@@ -12,7 +13,7 @@ import java.nio.charset.Charset;
  */
 public interface FastdfsConstants {
 
-    Charset UTF_8 = Charset.forName("utf-8");
+    Charset UTF_8 = StandardCharsets.UTF_8;
 
     int FDFS_HEAD_LEN = 10; // 头部长度
     int FDFS_LONG_LEN = 8; // long 所占字节数

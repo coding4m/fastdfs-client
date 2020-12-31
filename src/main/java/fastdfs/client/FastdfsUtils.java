@@ -4,12 +4,9 @@
 package fastdfs.client;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.util.CharsetUtil;
 
 import java.util.Collection;
 import java.util.List;
-
-import static io.netty.util.CharsetUtil.UTF_8;
 
 /**
  * 帮助类
@@ -17,6 +14,8 @@ import static io.netty.util.CharsetUtil.UTF_8;
  * @author liulongbiao
  */
 public final class FastdfsUtils {
+
+    private final static String WORDS = "[a-zA-Z0-9]{1,6}";
 
     private FastdfsUtils() {
     }
@@ -61,9 +60,9 @@ public final class FastdfsUtils {
      * @param length
      */
     public static void writeFixLength(ByteBuf buf, String content, int length) {
-        byte[] bytes = content.getBytes(CharsetUtil.UTF_8);
+        byte[] bytes = content.getBytes(FastdfsConstants.UTF_8);
         int blen = bytes.length;
-        int wlen = blen > length ? length : blen;
+        int wlen = Math.min(blen, length);
         buf.writeBytes(bytes, 0, wlen);
         if (wlen < length) {
             buf.writeZero(length - wlen);
@@ -80,7 +79,7 @@ public final class FastdfsUtils {
     public static String readString(ByteBuf in, int length) {
         byte[] bytes = new byte[length];
         in.readBytes(bytes);
-        return new String(bytes, UTF_8).trim();
+        return new String(bytes, FastdfsConstants.UTF_8).trim();
     }
 
     /**
@@ -90,21 +89,7 @@ public final class FastdfsUtils {
      * @return
      */
     public static String readString(ByteBuf in) {
-        return in.toString(UTF_8);
-    }
-
-    /**
-     * 获取文件扩展名
-     *
-     * @param filename
-     * @return
-     */
-    public static String getFileExt(String filename) {
-        if (filename == null) {
-            return "";
-        }
-        int idx = filename.lastIndexOf('.');
-        return idx == -1 ? "" : filename.substring(idx + 1).toLowerCase();
+        return in.toString(FastdfsConstants.UTF_8);
     }
 
     /**
@@ -115,6 +100,20 @@ public final class FastdfsUtils {
      */
     public static String getFileExt(String filename, String defaultExt) {
         String fileExt = getFileExt(filename);
-        return isEmpty(fileExt) ? defaultExt : fileExt;
+        return isEmpty(fileExt) || !fileExt.matches(WORDS) ? defaultExt : fileExt;
+    }
+
+    /**
+     * 获取文件扩展名
+     *
+     * @param filename
+     * @return
+     */
+    private static String getFileExt(String filename) {
+        if (filename == null) {
+            return "";
+        }
+        int idx = filename.lastIndexOf('.');
+        return idx == -1 ? "" : filename.substring(idx + 1).toLowerCase();
     }
 }
