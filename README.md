@@ -5,7 +5,7 @@ based on [Netty 4](http://netty.io) . support multiple tracker server pool and a
 
 ## Requirements
 
-* Java 8.
+* Java 8+
 
 ## Usage
 
