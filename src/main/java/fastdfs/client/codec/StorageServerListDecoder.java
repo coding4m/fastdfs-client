@@ -36,9 +36,14 @@ public enum StorageServerListDecoder implements Replier.Decoder<List<StorageServ
         List<StorageServer> results = new ArrayList<StorageServer>(count);
 
         String group = readString(in, FDFS_GROUP_LEN);
+        if (group.indexOf('\0') > 0) {
+            group = group.substring(0, group.indexOf('\0'));
+        }
         String mainHost = readString(in, FDFS_HOST_LEN);
+        if (mainHost.indexOf('\0') > 0) {
+            mainHost = mainHost.substring(0, mainHost.indexOf('\0'));
+        }
         int port = (int) in.readLong();
-
         results.add(new StorageServer(group, mainHost, port));
         for (int i = 1; i < count; i++) {
             String host = readString(in, FDFS_HOST_LEN);
