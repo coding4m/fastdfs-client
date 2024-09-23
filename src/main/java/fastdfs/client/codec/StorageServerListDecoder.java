@@ -28,25 +28,22 @@ public enum StorageServerListDecoder implements Replier.Decoder<List<StorageServ
         if (size < FDFS_STORAGE_LEN) {
             throw new FastdfsException("body length : " + size + " is less than required length " + FDFS_STORAGE_LEN);
         }
-        if ((size - FDFS_STORAGE_LEN) % FDFS_HOST_LEN != 0) {
+        if ((size % FDFS_STORAGE_LEN) != 0) {
             throw new FastdfsException("body length : " + size + " is invalidate. ");
         }
 
-        int count = (size - FDFS_STORAGE_LEN) / FDFS_HOST_LEN + 1;
+        int count = size / FDFS_STORAGE_LEN;
         List<StorageServer> results = new ArrayList<StorageServer>(count);
-
-        String group = readString(in, FDFS_GROUP_LEN);
-        if (group.indexOf('\0') > 0) {
-            group = group.substring(0, group.indexOf('\0'));
-        }
-        String mainHost = readString(in, FDFS_HOST_LEN);
-        if (mainHost.indexOf('\0') > 0) {
-            mainHost = mainHost.substring(0, mainHost.indexOf('\0'));
-        }
-        int port = (int) in.readLong();
-        results.add(new StorageServer(group, mainHost, port));
-        for (int i = 1; i < count; i++) {
+        for (int i = 0; i < count; i++) {
+            String group = readString(in, FDFS_GROUP_LEN);
+            if (group.indexOf('\0') > 0) {
+                group = group.substring(0, group.indexOf('\0'));
+            }
             String host = readString(in, FDFS_HOST_LEN);
+            if (host.indexOf('\0') > 0) {
+                host = host.substring(0, host.indexOf('\0'));
+            }
+            int port = (int) in.readLong();
             results.add(new StorageServer(group, host, port));
         }
 
